@@ -4,6 +4,7 @@
   <title>Vue Fantasy Baseball</title>
   <script src="https://unpkg.com/vue"></script>
   <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.4/lodash.min.js"></script>
 </head>
 <body>
     <div id="app">
@@ -17,8 +18,9 @@
     </div>
 
     <ul id="teamList" v-show="displayList">
-        <li v-for="team in json">
-            {{ team }}
+        <li v-for="team in percentageOrder">
+            {{ team.teamLocation + " " + team.teamNickname + " (" + team.owners[0].firstName + " " + team.owners[0].lastName +
+                ") Record: " + team.record.overallWins + "-" + team.record.overallLosses + "-" + team.record.overallTies + " (" + team.record.overallPercentage + ")" }}
         </li>
     </ul>
   
@@ -33,33 +35,29 @@
         },
         methods: {
             getTeams: function(){
-                $.getJSON('https://games.espn.com/flb/api/v2/scoreboard?leagueId=' + this.leagueId + '&seasonId=' + this.seasonId + '&matchupPeriodId=1', function (json) {
-                    var matchups = json.scoreboard.matchups;
-                    var teamsArray = [];
-
-                    for(i in matchups){
-                        for(x in matchups[i].teams){
-                            var currentTeam = matchups[i].teams[x].team;
-                            teamsArray.push(currentTeam.teamLocation + " " + currentTeam.teamNickname);
-                        }
-                    }
-
+                $.getJSON('https://games.espn.com/flb/api/v2/leagueSettings?leagueId=' + this.leagueId + '&seasonId=' + this.seasonId, function (json) {
                     teamList.displayList = true;
-                    teamList.json = teamsArray;
-
+                    teamList.json = json.leaguesettings.teams;
                     console.log(json);
                 });
             }
         }
     });
-
+    
     var teamList = new Vue({
         el: '#teamList',
         data: {
             json: null,
             displayList: false
+        },
+        computed: {
+            percentageOrder: function () {
+                return _.orderBy(this.json, 'record.overallPercentage', 'desc');
+            }
         }
     });
+
+//weekly scores --> 'https://games.espn.com/flb/api/v2/scoreboard?leagueId=' + this.leagueId + '&seasonId=' + this.seasonId + '&matchupPeriodId=1'
 </script>
 </body>
 </html>
