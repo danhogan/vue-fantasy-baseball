@@ -15,6 +15,8 @@
                 {{ year }}
             </option>
         </select>
+
+        <button v-on:click="getScores()">Get Scores</button>
     </div>
 
     <ul id="teamList" v-show="displayList">
@@ -31,15 +33,46 @@
         data: {
           leagueId: null,
           seasonId: 2017,
-          options: [2017, 2016, 2015, 2014]
+          options: [2017, 2016, 2015, 2014, "All Years"],
+          matchupCount: 21, //make null
+          leagueMembersCount: 10 //make null
         },
         methods: {
             getTeams: function(){
                 $.getJSON('https://games.espn.com/flb/api/v2/leagueSettings?leagueId=' + this.leagueId + '&seasonId=' + this.seasonId, function (json) {
                     teamList.displayList = true;
                     teamList.json = json.leaguesettings.teams;
+                    this.matchupCount = json.leaguesettings.regularSeasonMatchupPeriodCount;
+                    this.leagueMembersCount = json.leaguesettings.leagueMembers.length;
                     console.log(json);
                 });
+            },
+            getScores: function() {
+            	var scores = [];
+
+            	var getWeek = function(matchupPeriodId, callback){
+            		$.getJSON('https://games.espn.com/flb/api/v2/scoreboard?leagueId=' + app.leagueId + '&seasonId=' + app.seasonId + '&matchupPeriodId=' + matchupPeriodId, function (json) {
+            			var oneTeam;
+            			var oneWeek = [];
+
+            			for(var x = 0; x < app.leagueMembersCount/2; x++){
+            				for(var y = 0; y < 2; y++){
+            					var currentTeam = json.scoreboard.matchups[x].teams[y];
+		            			oneWeek[currentTeam.teamId] = currentTeam.categoryScoring;
+            				}
+            			}
+
+            			callback(oneWeek, matchupPeriodId);
+                	});
+            	}
+
+            	for(var i = 1; i <= this.matchupCount; i++){
+            		getWeek(i, function(week, matchupPeriodId){
+            			scores[matchupPeriodId] = week;
+            		});
+            	}
+
+            	console.log(scores);
             }
         }
     });
@@ -57,7 +90,6 @@
         }
     });
 
-//weekly scores --> 'https://games.espn.com/flb/api/v2/scoreboard?leagueId=' + this.leagueId + '&seasonId=' + this.seasonId + '&matchupPeriodId=1'
 </script>
 </body>
 </html>
