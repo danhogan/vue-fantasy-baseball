@@ -17,11 +17,15 @@
                 {{ year }}
             </option>
         </select>
+
+        <button v-on:click="getScores()">Get Scores</button>
     </div>
 
     <ul id="teamList" v-show="displayList">
-        <li v-for="team in json">
-            {{ team }}
+        <li v-for="team in percentageOrder">
+            {{ team.teamLocation + " " + team.teamNickname + " (" + team.owners[0].firstName + " " + team.owners[0].lastName + ") Record:
+            " + team.record.overallWins + "-" + team.record.overallLosses + "-" + team.record.overallTies + " (" + team.record.overallPercentage
+            + ")" }}
         </li>
     </ul>
 
