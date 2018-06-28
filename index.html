@@ -1,10 +1,13 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-  <title>Vue Fantasy Baseball</title>
-  <script src="https://unpkg.com/vue"></script>
-  <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+    <title>Vue Fantasy Baseball</title>
+    <script src="https://unpkg.com/vue"></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+        crossorigin="anonymous"></script>
 </head>
+
 <body>
     <div id="app">
         <input v-model="leagueId" placeholder="League Id">
@@ -21,45 +24,46 @@
             {{ team }}
         </li>
     </ul>
-  
 
-<script>
-    var app = new Vue({
-        el: '#app',
-        data: {
-          leagueId: null,
-          seasonId: 2017,
-          options: [2017, 2016, 2015, 2014]
-        },
-        methods: {
-            getTeams: function(){
-                $.getJSON('https://games.espn.com/flb/api/v2/scoreboard?leagueId=' + this.leagueId + '&seasonId=' + this.seasonId + '&matchupPeriodId=1', function (json) {
-                    var matchups = json.scoreboard.matchups;
-                    var teamsArray = [];
 
-                    for(i in matchups){
-                        for(x in matchups[i].teams){
-                            var currentTeam = matchups[i].teams[x].team;
-                            teamsArray.push(currentTeam.teamLocation + " " + currentTeam.teamNickname);
+    <script>
+        var app = new Vue({
+            el: '#app',
+            data: {
+                leagueId: null,
+                seasonId: 2017,
+                options: [2017, 2016, 2015, 2014]
+            },
+            methods: {
+                getTeams: function () {
+                    $.getJSON('https://games.espn.com/flb/api/v2/scoreboard?leagueId=' + this.leagueId + '&seasonId=' + this.seasonId + '&matchupPeriodId=1', function (json) {
+                        var matchups = json.scoreboard.matchups;
+                        var teamsArray = [];
+
+                        for (i in matchups) {
+                            for (x in matchups[i].teams) {
+                                var currentTeam = matchups[i].teams[x].team;
+                                teamsArray.push(currentTeam.teamLocation + " " + currentTeam.teamNickname);
+                            }
                         }
-                    }
 
-                    teamList.displayList = true;
-                    teamList.json = teamsArray;
+                        teamList.displayList = true;
+                        teamList.json = teamsArray;
 
-                    console.log(json);
-                });
+                        console.log(json);
+                    });
+                }
             }
-        }
-    });
+        });
 
-    var teamList = new Vue({
-        el: '#teamList',
-        data: {
-            json: null,
-            displayList: false
-        }
-    });
-</script>
+        var teamList = new Vue({
+            el: '#teamList',
+            data: {
+                json: null,
+                displayList: false
+            }
+        });
+    </script>
 </body>
+
 </html>
